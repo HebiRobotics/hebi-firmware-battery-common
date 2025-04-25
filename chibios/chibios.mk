@@ -43,14 +43,14 @@ LDSCRIPT= $(STARTUPLD)/STM32L432xC.ld
 CHIBI_CSRC = 	$(ALLCSRC) \
 		$(TESTSRC) \
 		$(CHIBIOS)/os/various/evtimer.c \
-		$(wildcard ./chibios/bindings/*.c) \
+		$(wildcard $(COMMON)/chibios/bindings/*.c) \
 		$(CHIBIOS)/os/various/syscalls.c 
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CHIBI_CPPSRC = $(ALLCPPSRC) \
 		$(CHIBIOS)/os/various/cpp_wrappers/ch.cpp \
-		$(wildcard ./chibios/bindings/*.cpp)
+		$(wildcard $(COMMON)/chibios/bindings/*.cpp)
 
 # List ASM source files here.
 ASMSRC = $(ALLASMSRC)
@@ -61,8 +61,7 @@ ASMXSRC = $(ALLXASMSRC)
 # Inclusion directories.
 CHIBI_INCDIR = $(CONFDIR) $(ALLINC) $(TESTINC) \
 		 	$(CHIBIOS)/os/various/cpp_wrappers \
-		 	./chibios/bindings \
-			src src/hardware src/hardware/drivers src/modules
+		 	$(COMMON)/chibios/bindings
 
 
 #

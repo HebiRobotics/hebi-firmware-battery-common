@@ -8,7 +8,7 @@
 
 #include "all_msg.h"
 #include "Driver.h"
-#include "driver/can_driver.h"
+#include "nodes/can_driver.h"
 
 extern "C" {
 #include <ch.h>

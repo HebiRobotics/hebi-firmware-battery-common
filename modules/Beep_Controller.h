@@ -7,7 +7,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "hardware/Beeper.h"
+#include "Beeper.h"
 #include <limits>
 
 namespace hebi::firmware::modules {

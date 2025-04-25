@@ -9,7 +9,7 @@
 
 #pragma once
  
-#include "hardware/LED_RGB.h"
+#include "LED_RGB.h"
  
 namespace hebi::firmware::modules {
  

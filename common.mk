@@ -1,21 +1,26 @@
 ##############################################################################
 # Project, sources and paths
 #
+
+BOARDDIR = $(COMMON)/boards
+
 COMMON_CPPSRC = $(wildcard $(COMMON)/can-proto/driver/*.cpp) 
 
 COMMON_CSRC =
 
 COMMON_INC = $(COMMON)/can-proto $(COMMON)/config
 
+include $(COMMON)/chibios/chibios.mk
 COMMON_CSRC += $(CHIBI_CSRC)
 COMMON_CPPSRC += $(CHIBI_CPPSRC)
 COMMON_INC += $(CHIBI_INCDIR)
 
 PROTO_DIR = $(COMMON)/can-proto
-
 include $(PROTO_DIR)/proto.mk
+COMMON_CPPSRC += $(PROTO_CPPSRC)
+COMMON_INC += $(PROTO_INCDIR)
+
 include $(COMMON)/defaults.mk
-include $(COMMON)/chibios/chibios.mk
 
 #
 # Project, sources and paths
@@ -55,16 +60,4 @@ COMMON_DDEFS += -D_FIRMWARE_MODE_$(FIRMWARE_MODE)
 
 #
 # General Project Information
-##############################################################################
-
-##############################################################################
-# Common rules
-#
-
-RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk
-include $(RULESPATH)/arm-none-eabi.mk
-include $(RULESPATH)/rules.mk
-
-#
-# Common rules
 ##############################################################################
