@@ -1,0 +1,6 @@
+[submodule "can-proto"]
+	path = can-proto
+	url = git@github.com:HebiRobotics/hebi-firmware-battery-protocol.git
+[submodule "chibios/ChibiOS"]
+	path = chibios/ChibiOS
+	url = git@github.com:HebiRobotics/ChibiOS.git

@@ -1,0 +1,68 @@
+
+include $(COMMON)/defaults.mk
+include $(COMMON)/chibios/chibios.mk
+
+##############################################################################
+# Project, sources and paths
+#
+COMMON_CPPSRC = $(wildcard $(COMMON)/can-proto/driver/*.cpp) 
+
+COMMON_CSRC =
+
+COMMON_INC = $(COMMON)/can-proto
+
+COMMON_CSRC += $(CHIBI_CSRC)
+COMMON_CPPSRC += $(CHIBI_CPPSRC)
+COMMON_INC += $(CHIBI_INCDIR)
+
+#
+# Project, sources and paths
+##############################################################################
+
+##############################################################################
+# General Project Information
+#
+
+# Extract version and repository information from git
+GIT_REVISION:= $(shell git log -1 | head -1 | cut -d ' ' -f 2 | cut -c-7 )
+GIT_PATH := $(shell git rev-parse --show-prefix)
+GIT_MODIFIED := $(shell ( ! git diff --cached -s --exit-code || ! git diff --exit-code -s) && echo "(modified)")
+# Shorthand 'modified' tag
+GIT_MOD := $(shell ( ! git diff --cached -s --exit-code || ! git diff --exit-code -s) && echo "-m")
+
+# Auto-generate summary information for firmware.  If BUILD_LABEL
+# is provided, use that; otherwise, use git revision
+FIRMWARE_REVISION := $(if $(BUILD_LABEL),$(BUILD_LABEL),$(GIT_PATH)@$(GIT_REVISION)$(GIT_MOD))
+
+FIRMWARE_TAG := $(DESCRIPTION) $(GIT_MODIFIED)
+FIRMWARE_DATE := $(shell date)
+FIRMWARE_USERNAME := $(shell whoami | sed 's,\\\\,/,')
+
+# List all default C defines here, like -D_DEBUG=1
+COMMON_DDEFS = -D_FIRMWARE_REVISION="$(FIRMWARE_REVISION)"
+COMMON_DDEFS += -D_FIRMWARE_TAG="$(FIRMWARE_TAG)"
+COMMON_DDEFS += -D_FIRMWARE_DATE="$(FIRMWARE_DATE)"
+COMMON_DDEFS += -D_FIRMWARE_USERNAME="$(FIRMWARE_USERNAME)"
+COMMON_DDEFS += -D_FIRMWARE_TYPE="$(FIRMWARE_TYPE)"
+COMMON_DDEFS += -D_ELECTRICAL_TYPE="$(ELECTRICAL_TYPE)"
+COMMON_DDEFS += -D_BOARD_TYPE="$(BOARD_TYPE)"
+# For string manipulation:
+COMMON_DDEFS += -D_FIRMWARE_MODE="$(FIRMWARE_MODE)"
+# For preprocessor ifdefs:
+COMMON_DDEFS += -D_FIRMWARE_MODE_$(FIRMWARE_MODE)
+
+#
+# General Project Information
+##############################################################################
+
+##############################################################################
+# Common rules
+#
+
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk
+include $(RULESPATH)/arm-none-eabi.mk
+include $(RULESPATH)/rules.mk
+
+#
+# Common rules
+##############################################################################
