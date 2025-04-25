@@ -1,25 +1,42 @@
+# We use the FIRMWARE_MODE variable to determine various settings, and so check
+# here that it is an allowable value
+ifneq ($(FIRMWARE_MODE),APPLICATION)
+  ifneq ($(FIRMWARE_MODE),BOOTLOADER)
+    $(error FIRMWARE_MODE must be defined and set to either APPLICATION or BOOTLOADER)
+  endif
+endif
+
 ##############################################################################
 # Project, sources and paths
 #
 
 BOARDDIR = $(COMMON)/boards
-
 COMMON_CPPSRC = $(wildcard $(COMMON)/can-proto/driver/*.cpp) 
-
 COMMON_CSRC =
-
 COMMON_INC = $(COMMON)/can-proto $(COMMON)/config
 
+ifeq ($(FIRMWARE_MODE),APPLICATION)
+# Define linker script file here
+LDSCRIPT= $(COMMON)/config/ld/STM32L432xC_application.ld
+endif
+ifeq ($(FIRMWARE_MODE),BOOTLOADER)
+# Define linker script file here
+LDSCRIPT= $(COMMON)/config/ld/STM32L432xC_bootloader.ld
+endif
+
+#Add chibios files
 include $(COMMON)/chibios/chibios.mk
 COMMON_CSRC += $(CHIBI_CSRC)
 COMMON_CPPSRC += $(CHIBI_CPPSRC)
 COMMON_INC += $(CHIBI_INCDIR)
 
+#Add protocol files
 PROTO_DIR = $(COMMON)/can-proto
 include $(PROTO_DIR)/proto.mk
 COMMON_CPPSRC += $(PROTO_CPPSRC)
 COMMON_INC += $(PROTO_INCDIR)
 
+#Default compile options
 include $(COMMON)/defaults.mk
 
 #
