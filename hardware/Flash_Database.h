@@ -13,6 +13,11 @@ namespace hebi::firmware::hardware {
 enum class FlashDatabaseKey {
     INVALID = 0,
     NODE_ID = 1,
+    AES_KEY = 2,
+    APPLICATION_HASH = 3,
+    BOOTLOADER_HASH = 4,
+    APPLICATION_VALID = 5,
+    STAY_IN_BOOTLOADER = 6,
 };
 
 class Flash_Database {
@@ -23,13 +28,13 @@ public:
 
         // Attempt to retrieve the specified data structure
         // and report success status.
-        return getArray(key, &data, sizeof (T));
+        return getArray(key, (uint8_t*) &data, sizeof (T));
     }
 
     template<typename T> bool put(FlashDatabaseKey key, const T &data) {
         if(key == FlashDatabaseKey::INVALID) return false;
 
-        return putArray(key, &data, sizeof (T));
+        return putArray(key, (uint8_t*) &data, sizeof (T));
     }
 
 protected:
