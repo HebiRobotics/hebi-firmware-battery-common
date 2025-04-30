@@ -29,8 +29,8 @@ CANConfig Battery_CAN::cancfg_ = {
             CAN_BTR_BRP(10)    //Baud rate = APB1 / BRP
 };
 
-util::LF_RingBuffer<protocol::base_msg, 5> Battery_CAN::rx_buffer_;
-util::LF_RingBuffer<protocol::base_msg, 5> Battery_CAN::tx_buffer_;
+util::LF_RingBuffer<protocol::base_msg, 300> Battery_CAN::rx_buffer_;
+util::LF_RingBuffer<protocol::base_msg, 300> Battery_CAN::tx_buffer_;
 
 /*
 * Receiver thread.
