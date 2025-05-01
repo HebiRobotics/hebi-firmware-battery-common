@@ -23,10 +23,10 @@ CANConfig Battery_CAN::cancfg_ = {
             CAN_MCR_AWUM | //Auto wake-up mode
             CAN_MCR_TXFP,  //Chronological TX FIFO priority
     .btr =  //CAN_BTR_LBKM | //Loopback mode
-            CAN_BTR_SJW(3) | //Resync jump width
-            CAN_BTR_TS2(1) |  //Time in TS2
-            CAN_BTR_TS1(12) | //Time in TS1
-            CAN_BTR_BRP(10)    //Baud rate = APB1 / BRP
+            CAN_BTR_SJW(4-1) |  //Resync jump width
+            CAN_BTR_TS2(6-1) |  //Time in TS2
+            CAN_BTR_TS1(12-1) |  //Time in TS1
+            CAN_BTR_BRP(8-1)    //Baud rate = APB1 / BRP
 };
 
 util::LF_RingBuffer<protocol::base_msg, 300> Battery_CAN::rx_buffer_;
@@ -44,17 +44,31 @@ THD_FUNCTION(Battery_CAN::can_rx_thd_fn, p) {
 
     (void)p;
     chRegSetThreadName("receiver");
-    chEvtRegister(&canp->rxfull_event, &el, 0);
+    // chEvtRegister(&canp->rxfull_event, &el, 0);
     while(!chThdShouldTerminateX()) {
-        if (chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100)) == 0)
-            continue;
+        // if (chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100)) == 0)
+        //     continue;
         while (canReceive(canp, CAN_ANY_MAILBOX,
-                            &rxmsg, TIME_IMMEDIATE) == MSG_OK) {
+                            &rxmsg, TIME_MS2I(1)) == MSG_OK) {
             /* Process message.*/
+            // palWriteLine(LINE_SNS_EN, true);
+            // chSysLock();
             rx_buffer_.add(protocol::base_msg(rxmsg.EID, rxmsg.DLC, rxmsg.data8));
+            // chSysUnlock();
+            // palWriteLine(LINE_SNS_EN, false);
         }
     }
-    chEvtUnregister(&CAND1.rxfull_event, &el);
+    // chEvtUnregister(&CAND1.rxfull_event, &el);
+}
+
+void Battery_CAN::can_rx_callback(CANDriver *canp, uint32_t flags){
+    CANRxFrame rxmsg;
+
+    while(!canTryReceiveI(&CAND1, CAN_ANY_MAILBOX, &rxmsg)){
+        palWriteLine(LINE_SNS_EN, true);
+        rx_buffer_.add(protocol::base_msg(rxmsg.EID, rxmsg.DLC, rxmsg.data8));
+        palWriteLine(LINE_SNS_EN, false);
+    }
 }
 
 /*
@@ -82,7 +96,9 @@ THD_FUNCTION(Battery_CAN::can_tx_thd_fn, p) {
         if(evt & CAN_TX_MSG_EVENT_MASK){
             bool has_data = true;
             while(has_data){
+                // chSysLock();
                 auto msg_opt = tx_buffer_.take();
+                // chSysUnlock();
                 if(msg_opt.has_value()){
                     auto msg = msg_opt.value();
 
@@ -93,7 +109,7 @@ THD_FUNCTION(Battery_CAN::can_tx_thd_fn, p) {
                     txmsg.data32[0] = msg.data32[0];
                     txmsg.data32[1] = msg.data32[1];
             
-                    canTransmit(&CAND1, CAN_ANY_MAILBOX, &txmsg, TIME_MS2I(100));
+                    canTransmit(&CAND1, CAN_ANY_MAILBOX, &txmsg, TIME_MS2I(500));
                 } else {
                     has_data = false;
                 }
@@ -112,12 +128,13 @@ Battery_CAN::Battery_CAN() {
     /*
     * Starting the transmitter and receiver threads.
     */
-    Battery_CAN::can_rx_thread_ = 
-        chThdCreateStatic(can_rx1_wa, sizeof(can_rx1_wa), 
-        NORMALPRIO + 7, can_rx_thd_fn, &CAND1);
+    // Battery_CAN::can_rx_thread_ = 
+    //     chThdCreateStatic(can_rx1_wa, sizeof(can_rx1_wa), 
+    //     HIGHPRIO, can_rx_thd_fn, &CAND1);
+    CAND1.rxfull_cb = can_rx_callback;
     Battery_CAN::can_tx_thread_ = 
         chThdCreateStatic(can_tx_wa, sizeof(can_tx_wa), 
-        NORMALPRIO + 7, can_tx_thd_fn, NULL);
+        NORMALPRIO, can_tx_thd_fn, NULL);
 }
 
 void Battery_CAN::startDriver() {

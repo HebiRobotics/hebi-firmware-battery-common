@@ -17,15 +17,15 @@ const MFSConfig mfscfg1 = {
     .flashp           = (BaseFlash *)&EFLD1,
     .erased           = 0xFFFFFFFFU,
     .bank_size        = 3*2048U,
-    .bank0_start      = 121U,
+    .bank0_start      = 122U,
     .bank0_sectors    = 3U,
-    .bank1_start      = 124U,
+    .bank1_start      = 125U,
     .bank1_sectors    = 3U
 };
 
 const uint32_t Flash_STM32L4::PAGE_SIZES[NUM_SECTORS] = {
-    0x30000, // 96k (Bootloader)
-    0x4A000, // 148k (Application)
+    0x1A000, // 104k (Bootloader)
+    0x23000, // 140k (Application)
     0x03000, // 6 * 2k (Database)
 };
 
@@ -95,11 +95,11 @@ uint32_t Flash_STM32L4::getSize(Flash_STM32L4::Partition partition){
 
 uint32_t Flash_STM32L4::resolveOffset(Flash_STM32L4::Partition id, uint32_t offset) {
     //TODO: More error checking here?
-    if(id == Partition::ALL) return offset + PAGE_BASES[0];
+    if(id == Partition::ALL) return offset;
 
     for (int i = 0; i < NUM_SECTORS; i++) {
         if (PARTITION_TABLE[i] == id && offset < PAGE_SIZES[i]) {
-            return offset + PAGE_BASES[i];
+            return offset + PAGE_BASES[i] - PAGE_BASES[0];
         }
     }
 
@@ -147,7 +147,7 @@ Flash_STM32L4::Status Flash_STM32L4::erase(Flash_STM32L4::Partition id){
     for (int i = 0; i < NUM_SECTORS; i++) {
         if (PARTITION_TABLE[i] == id || id == Partition::ALL) {
             uint32_t n_2k_sectors = PAGE_SIZES[i] / SECTOR_SIZE;
-            uint32_t sector_base = PAGE_BASES[i] / SECTOR_SIZE;
+            uint32_t sector_base = (PAGE_BASES[i] - PAGE_BASES[0]) / SECTOR_SIZE;
             for(uint16_t ind = 0; ind < n_2k_sectors; ind++){
                 // Try to erase
                 auto result = flashStartEraseSector(&EFLD1, sector_base + ind);

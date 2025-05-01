@@ -28,6 +28,8 @@ public:
     void startDriver() override;
     void stopDriver() override;
 protected:
+    static void can_rx_callback(CANDriver *canp, uint32_t flags);
+
     static THD_FUNCTION(can_tx_thd_fn, arg);
     static THD_WORKING_AREA(can_tx_wa, 256);
     static thread_t *can_tx_thread_;
