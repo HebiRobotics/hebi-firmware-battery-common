@@ -31,11 +31,11 @@ protected:
     static void can_rx_callback(CANDriver *canp, uint32_t flags);
 
     static THD_FUNCTION(can_tx_thd_fn, arg);
-    static THD_WORKING_AREA(can_tx_wa, 256);
+    static THD_WORKING_AREA(can_tx_wa, 1024);
     static thread_t *can_tx_thread_;
 
     static THD_FUNCTION(can_rx_thd_fn, arg);
-    static THD_WORKING_AREA(can_rx1_wa, 256);
+    static THD_WORKING_AREA(can_rx1_wa, 1024);
     static thread_t *can_rx_thread_;
     
     static util::LF_RingBuffer<protocol::base_msg, 300> rx_buffer_;

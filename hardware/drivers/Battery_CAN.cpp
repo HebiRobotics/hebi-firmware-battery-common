@@ -36,7 +36,7 @@ util::LF_RingBuffer<protocol::base_msg, 300> Battery_CAN::tx_buffer_;
 * Receiver thread.
 */
 thread_t *Battery_CAN::can_rx_thread_ {nullptr};
-THD_WORKING_AREA(Battery_CAN::can_rx1_wa, 256);
+THD_WORKING_AREA(Battery_CAN::can_rx1_wa, 1024);
 THD_FUNCTION(Battery_CAN::can_rx_thd_fn, p) {
     CANDriver *canp = (CANDriver *)p;
     event_listener_t el;
@@ -44,32 +44,32 @@ THD_FUNCTION(Battery_CAN::can_rx_thd_fn, p) {
 
     (void)p;
     chRegSetThreadName("receiver");
-    // chEvtRegister(&canp->rxfull_event, &el, 0);
+    chEvtRegister(&canp->rxfull_event, &el, 0);
     while(!chThdShouldTerminateX()) {
-        // if (chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100)) == 0)
-        //     continue;
+        if (chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(10)) == 0)
+            continue;
         while (canReceive(canp, CAN_ANY_MAILBOX,
                             &rxmsg, TIME_MS2I(1)) == MSG_OK) {
             /* Process message.*/
-            // palWriteLine(LINE_SNS_EN, true);
-            // chSysLock();
+            palWriteLine(LINE_SNS_EN, true);
+            chSysLock();
             rx_buffer_.add(protocol::base_msg(rxmsg.EID, rxmsg.DLC, rxmsg.data8));
-            // chSysUnlock();
-            // palWriteLine(LINE_SNS_EN, false);
+            chSysUnlock();
+            palWriteLine(LINE_SNS_EN, false);
         }
     }
-    // chEvtUnregister(&CAND1.rxfull_event, &el);
+    chEvtUnregister(&CAND1.rxfull_event, &el);
 }
 
-void Battery_CAN::can_rx_callback(CANDriver *canp, uint32_t flags){
-    CANRxFrame rxmsg;
+// void Battery_CAN::can_rx_callback(CANDriver *canp, uint32_t flags){
+//     CANRxFrame rxmsg;
 
-    while(!canTryReceiveI(&CAND1, CAN_ANY_MAILBOX, &rxmsg)){
-        palWriteLine(LINE_SNS_EN, true);
-        rx_buffer_.add(protocol::base_msg(rxmsg.EID, rxmsg.DLC, rxmsg.data8));
-        palWriteLine(LINE_SNS_EN, false);
-    }
-}
+//     while(!canTryReceiveI(&CAND1, CAN_ANY_MAILBOX, &rxmsg)){
+//         palWriteLine(LINE_SNS_EN, true);
+//         rx_buffer_.add(protocol::base_msg(rxmsg.EID, rxmsg.DLC, rxmsg.data8));
+//         palWriteLine(LINE_SNS_EN, false);
+//     }
+// }
 
 /*
 * Transmitter thread.
@@ -78,7 +78,7 @@ void Battery_CAN::can_rx_callback(CANDriver *canp, uint32_t flags){
 #define CAN_TX_MSG_EVENT_MASK EVENT_MASK(0)
 
 thread_t *Battery_CAN::can_tx_thread_ {nullptr};
-THD_WORKING_AREA(Battery_CAN::can_tx_wa, 256);
+THD_WORKING_AREA(Battery_CAN::can_tx_wa, 1024);
 THD_FUNCTION(Battery_CAN::can_tx_thd_fn, p) {
     
     // event_listener_t tx_msg_listener;
@@ -128,10 +128,10 @@ Battery_CAN::Battery_CAN() {
     /*
     * Starting the transmitter and receiver threads.
     */
-    // Battery_CAN::can_rx_thread_ = 
-    //     chThdCreateStatic(can_rx1_wa, sizeof(can_rx1_wa), 
-    //     HIGHPRIO, can_rx_thd_fn, &CAND1);
-    CAND1.rxfull_cb = can_rx_callback;
+    Battery_CAN::can_rx_thread_ = 
+        chThdCreateStatic(can_rx1_wa, sizeof(can_rx1_wa), 
+        HIGHPRIO, can_rx_thd_fn, &CAND1);
+    // CAND1.rxfull_cb = can_rx_callback;
     Battery_CAN::can_tx_thread_ = 
         chThdCreateStatic(can_tx_wa, sizeof(can_tx_wa), 
         NORMALPRIO, can_tx_thd_fn, NULL);

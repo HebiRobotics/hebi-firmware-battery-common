@@ -130,7 +130,7 @@
  * CAN driver system settings.
  */
 #define STM32_CAN_USE_CAN1                  TRUE
-#define STM32_CAN_CAN1_IRQ_PRIORITY         1
+#define STM32_CAN_CAN1_IRQ_PRIORITY         11
 
 /*
  * DAC driver system settings.
