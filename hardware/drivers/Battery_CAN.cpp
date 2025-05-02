@@ -13,7 +13,7 @@ namespace hebi::firmware::hardware {
 // static Battery_CAN *driver = nullptr;
 
 /*
- * Internal loopback mode, 500KBaud, automatic wakeup, automatic recover
+ * 250KBaud, automatic wakeup, automatic recover
  * from abort mode.
  * See section 42.7.7 on the STM32 reference manual.
  */
@@ -24,9 +24,9 @@ CANConfig Battery_CAN::cancfg_ = {
             CAN_MCR_TXFP,  //Chronological TX FIFO priority
     .btr =  //CAN_BTR_LBKM | //Loopback mode
             CAN_BTR_SJW(4-1) |  //Resync jump width
-            CAN_BTR_TS2(6-1) |  //Time in TS2
-            CAN_BTR_TS1(12-1) |  //Time in TS1
-            CAN_BTR_BRP(10-1)    //Baud rate = APB1 / BRP
+            CAN_BTR_TS2(8-1) |  //Time in TS2
+            CAN_BTR_TS1(16-1) | //Time in TS1
+            CAN_BTR_BRP(8-1)    //Time quantum = 50MHz / 8 = 160ns
 };
 
 util::LF_RingBuffer<protocol::base_msg, 300> Battery_CAN::rx_buffer_;
