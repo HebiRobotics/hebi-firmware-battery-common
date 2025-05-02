@@ -26,7 +26,7 @@ CANConfig Battery_CAN::cancfg_ = {
             CAN_BTR_SJW(4-1) |  //Resync jump width
             CAN_BTR_TS2(6-1) |  //Time in TS2
             CAN_BTR_TS1(12-1) |  //Time in TS1
-            CAN_BTR_BRP(8-1)    //Baud rate = APB1 / BRP
+            CAN_BTR_BRP(10-1)    //Baud rate = APB1 / BRP
 };
 
 util::LF_RingBuffer<protocol::base_msg, 300> Battery_CAN::rx_buffer_;
