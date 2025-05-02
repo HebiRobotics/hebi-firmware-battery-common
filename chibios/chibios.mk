@@ -36,7 +36,7 @@ include $(CHIBIOS)/tools/mk/autobuild.mk
 include $(CHIBIOS)/os/hal/lib/complex/mfs/hal_mfs.mk
 
 # Define linker script file here
-LDSCRIPT= $(STARTUPLD)/STM32L432xC.ld
+# LDSCRIPT= $(STARTUPLD)/STM32L432xC.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
