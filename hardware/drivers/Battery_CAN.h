@@ -38,8 +38,8 @@ protected:
     static THD_WORKING_AREA(can_rx1_wa, 1024);
     static thread_t *can_rx_thread_;
     
-    static util::LF_RingBuffer<protocol::base_msg, 300> rx_buffer_;
-    static util::LF_RingBuffer<protocol::base_msg, 300> tx_buffer_;
+    static util::LF_RingBuffer<protocol::base_msg, 30> rx_buffer_;
+    static util::LF_RingBuffer<protocol::base_msg, 30> tx_buffer_;
 
     static CANConfig cancfg_;
 };

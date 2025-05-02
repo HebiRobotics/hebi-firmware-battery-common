@@ -24,8 +24,8 @@ const MFSConfig mfscfg1 = {
 };
 
 const uint32_t Flash_STM32L4::PAGE_SIZES[NUM_SECTORS] = {
-    0x1A000, // 104k (Bootloader)
-    0x23000, // 140k (Application)
+    0x10000, // 64k (Bootloader)
+    0x2D000, // 180k (Application)
     0x03000, // 6 * 2k (Database)
 };
 
