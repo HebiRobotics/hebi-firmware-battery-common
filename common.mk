@@ -12,17 +12,11 @@ endif
 
 BOARDDIR = $(COMMON)/boards
 COMMON_CPPSRC = $(wildcard $(COMMON)/can-proto/driver/*.cpp) 
-COMMON_CSRC =
-COMMON_INC = $(COMMON)/can-proto $(COMMON)/config
+COMMON_CSRC = $(COMMON)/config/boot_ctrl/boot_ctrl.c
+COMMON_INC = $(COMMON)/can-proto $(COMMON)/config $(COMMON)/config/boot_ctrl
 
-ifeq ($(FIRMWARE_MODE),APPLICATION)
-# Define linker script file here
-LDSCRIPT= $(COMMON)/config/ld/STM32L432xC_application.ld
-endif
-ifeq ($(FIRMWARE_MODE),BOOTLOADER)
-# Define linker script file here
-LDSCRIPT= $(COMMON)/config/ld/STM32L432xC_bootloader.ld
-endif
+# USE_VERBOSE_COMPILE = yes
+# ULIBS += $(COMMON)/config/ld/STM32L432xC_memory.ld
 
 #Add chibios files
 include $(COMMON)/chibios/chibios.mk
@@ -35,6 +29,15 @@ PROTO_DIR = $(COMMON)/can-proto
 include $(PROTO_DIR)/proto.mk
 COMMON_CPPSRC += $(PROTO_CPPSRC)
 COMMON_INC += $(PROTO_INCDIR)
+
+ifeq ($(FIRMWARE_MODE),APPLICATION)
+# Define linker script file here
+LDSCRIPT = $(COMMON)/config/ld/STM32L432xC_application.ld
+endif
+ifeq ($(FIRMWARE_MODE),BOOTLOADER)
+# Define linker script file here
+LDSCRIPT = $(COMMON)/config/ld/STM32L432xC_bootloader.ld
+endif
 
 #Default compile options
 include $(COMMON)/defaults.mk

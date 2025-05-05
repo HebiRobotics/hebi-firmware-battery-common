@@ -14,20 +14,21 @@
     limitations under the License.
 */
 
-/*
- * STM32L432xC memory setup.
- */
+/* Memory map for STM32L432xC 
+    256k ROM, 64k RAM
+*/
 MEMORY
 {
-    flash0 (rx) : org = 0x08000000, len = 64k
-    flash1 (rx) : org = 0x00000000, len = 0
-    flash2 (rx) : org = 0x00000000, len = 0
+    flash0 (rx) : org = 0x08000000, len = 64k   /* Bootloader */
+    flash1 (rx) : org = 0x08010000, len = 180k  /* Application */
+    flash2 (rx) : org = 0x0803D000, len = 12k   /* Database */
     flash3 (rx) : org = 0x00000000, len = 0
     flash4 (rx) : org = 0x00000000, len = 0
     flash5 (rx) : org = 0x00000000, len = 0
     flash6 (rx) : org = 0x00000000, len = 0
     flash7 (rx) : org = 0x00000000, len = 0
-    ram0   (wx) : org = 0x20000000, len = 64k
+    shared (wx) : org = 0x20000000, len = 8     /* Shared RAM */
+    ram0   (wx) : org = 0x20000008, len = 65528   /* 64k - 8 bytes RAM */
     ram1   (wx) : org = 0x00000000, len = 0
     ram2   (wx) : org = 0x00000000, len = 0
     ram3   (wx) : org = 0x00000000, len = 0
@@ -36,6 +37,10 @@ MEMORY
     ram6   (wx) : org = 0x00000000, len = 0
     ram7   (wx) : org = 0x00000000, len = 0
 }
+
+/* shared data starts point at the origin of the shared region */
+_boot_ctrl_data_start = ORIGIN(shared);
+_app_data_start = ORIGIN(flash1);
 
 /* For each data/text section two region are defined, a virtual region
    and a load region (_LMA suffix).*/
