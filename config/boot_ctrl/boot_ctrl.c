@@ -35,16 +35,12 @@ struct boot_ctrl_data {
 
 static struct boot_ctrl_data *data = (struct boot_ctrl_data *)&_boot_ctrl_data_start;
 
-void setJumpToApplication(uint8_t stay) {
-    if(stay){
+void setJumpToApplication(uint8_t jump) {
+    if(jump){
         data->jump_to_app = MAGIC_NUMBER;
     } else {
         data->jump_to_app = 0;
     }
-}
-
-uint8_t shouldJumpToApplication(void) {
-    return data->jump_to_app == MAGIC_NUMBER;
 }
 
 void setStayInBootloader(uint8_t stay) {
@@ -53,6 +49,10 @@ void setStayInBootloader(uint8_t stay) {
     } else {
         data->stay_in_boot = 0;
     }
+}
+
+uint8_t shouldJumpToApplication(void) {
+    return data->jump_to_app == MAGIC_NUMBER;
 }
 
 uint8_t shouldStayInBootloader(void) {

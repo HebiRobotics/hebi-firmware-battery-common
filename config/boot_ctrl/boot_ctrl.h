@@ -2,7 +2,7 @@
 
 #pragma once
 
-void setJumpToApplication(uint8_t stay);
+void setJumpToApplication(uint8_t jump);
 void setStayInBootloader(uint8_t stay);
 
 uint8_t shouldJumpToApplication(void);
