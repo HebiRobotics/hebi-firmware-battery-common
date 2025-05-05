@@ -15,9 +15,10 @@ enum class FlashDatabaseKey {
     NODE_ID = 1,
     AES_KEY = 2,
     APPLICATION_HASH = 3,
-    BOOTLOADER_HASH = 4,
+    BOOTLOADER_HASH = 4, //Unused
     APPLICATION_VALID = 5,
-    STAY_IN_BOOTLOADER = 6,
+    STAY_IN_BOOTLOADER = 6, //Deprecated
+    SERIAL_NUMBER = 7,
 };
 
 class Flash_Database {
