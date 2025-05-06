@@ -90,6 +90,20 @@ void Info_Handler::recvd_ctrl_read_info(protocol::ctrl_read_info_msg& msg) {
                 serial_number_handler_.string(), serial_number_handler_.stringLength());
         }
     }
+    if(msg.read_HW_revision()){
+        //Send string as a series of smaller messages if we have it
+        if(hw_rev_handler_.hasString()){
+            can_.sendString(node_id_, MessageType::INFO_HW_REV, 
+                hw_rev_handler_.string(), hw_rev_handler_.stringLength());
+        }
+    }
+    if(msg.read_ELEC_revision()){
+        //Send string as a series of smaller messages if we have it
+        if(elec_rev_handler_.hasString()){
+            can_.sendString(node_id_, MessageType::INFO_ELEC_REV, 
+                elec_rev_handler_.string(), elec_rev_handler_.stringLength());
+        }
+    }
 }
 
 #ifdef _FIRMWARE_MODE_BOOTLOADER
