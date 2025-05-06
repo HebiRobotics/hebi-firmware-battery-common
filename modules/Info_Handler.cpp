@@ -75,7 +75,6 @@ void Info_Handler::recvd_ctrl_read_info(protocol::ctrl_read_info_msg& msg) {
         can_.sendString(node_id_, MessageType::INFO_FW_VERSION, 
             FIRMWARE_REVISION, str_len);
     }
-    if(msg.read_FW_mode()) can_.sendMessage(protocol::ctrl_fw_mode_msg(node_id_, protocol::ctrl_fw_mode_msg::FW_MODE_BOOT));
     if(msg.read_APP_FW_hash()){
         //Send string as a series of smaller messages if we have it
         if(app_fw_hash_handler_.hasString()){
@@ -104,6 +103,12 @@ void Info_Handler::recvd_ctrl_read_info(protocol::ctrl_read_info_msg& msg) {
                 elec_rev_handler_.string(), elec_rev_handler_.stringLength());
         }
     }
+    
+    #ifdef _FIRMWARE_MODE_BOOTLOADER
+    if(msg.read_FW_mode()) can_.sendMessage(protocol::ctrl_fw_mode_msg(node_id_, protocol::ctrl_fw_mode_msg::FW_MODE_BOOT));
+    #else
+    if(msg.read_FW_mode()) can_.sendMessage(protocol::ctrl_fw_mode_msg(node_id_, protocol::ctrl_fw_mode_msg::FW_MODE_APP));
+    #endif
 }
 
 #ifdef _FIRMWARE_MODE_BOOTLOADER
