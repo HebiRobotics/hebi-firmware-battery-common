@@ -19,6 +19,9 @@ enum class FlashDatabaseKey {
     APPLICATION_VALID = 5,
     STAY_IN_BOOTLOADER = 6, //Deprecated
     SERIAL_NUMBER = 7,
+    HW_TYPE = 8,
+    HW_REV = 9,
+    ELEC_REV = 10,
 };
 
 class Flash_Database {
