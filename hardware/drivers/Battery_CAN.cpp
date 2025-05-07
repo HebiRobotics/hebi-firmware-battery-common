@@ -51,11 +51,9 @@ THD_FUNCTION(Battery_CAN::can_rx_thd_fn, p) {
         while (canReceive(canp, CAN_ANY_MAILBOX,
                             &rxmsg, TIME_MS2I(1)) == MSG_OK) {
             /* Process message.*/
-            palWriteLine(LINE_SNS_EN, true);
             chSysLock();
             rx_buffer_.add(protocol::base_msg(rxmsg.EID, rxmsg.DLC, rxmsg.data8));
             chSysUnlock();
-            palWriteLine(LINE_SNS_EN, false);
         }
     }
     chEvtUnregister(&CAND1.rxfull_event, &el);
