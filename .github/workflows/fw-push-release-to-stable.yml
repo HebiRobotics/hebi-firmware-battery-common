@@ -1,0 +1,54 @@
+name: Push Release To Stable (common)
+
+on:
+  workflow_call:
+    inputs:
+      release_number:
+        required: true
+        type: string
+      repo:
+        required: true
+        type: string
+
+jobs:
+  prepare_for_upload:
+    runs-on: ubuntu-latest
+    steps:
+    # 1. download assets from GH release...
+    - id: download_assets
+      name: Download Assets
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: 'HebiRobotics/${{ inputs.repo }}'
+        tag: RELEASE_${{ inputs.release_number }}
+        fileName: '*'
+
+    # 2. artifact them correctly for fw-upload job:
+    - name: Upload build as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'files.bin' 
+        path: "*.bin"
+
+    - name: Firmware uploader scripts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'upload_scripts'
+        path: 'upload_all_firmware.sh' 
+
+    - name: Firmware uploader scripts (common)
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'common_upload_scripts'
+        path: 'upload_single_firmware.sh' 
+
+  # 3. Upload!
+  upload_fw:
+    needs:
+    - prepare_for_upload
+    uses: HEBIRobotics/hebi-firmware-battery-common/.github/workflows/fw-upload-common.yml@WORKFLOW_1.1.0
+    with:
+      build_label: ${{ github.event.inputs.release }}
+      upload_channel: STABLE
+      create_release: false # This was created when initially pushing the tag!
+    secrets: inherit

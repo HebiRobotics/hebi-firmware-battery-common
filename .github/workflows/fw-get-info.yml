@@ -1,0 +1,42 @@
+name: Get Firmware Info
+
+on:
+  workflow_call:
+    # Map the workflow outputs to job outputs
+    outputs:
+      build_label:
+        value: ${{ jobs.get_fw_version.outputs.build_label }}
+      upload_channel:
+        value: ${{ jobs.get_fw_version.outputs.upload_channel }}
+
+jobs:
+  get_fw_version:
+    runs-on: ubuntu-latest
+    outputs:
+      build_label: ${{ steps.get_git_info.outputs.build_label }}
+      upload_channel: ${{ steps.get_git_info.outputs.upload_channel }}
+    steps:
+    - id: get_git_info
+      name: Get git info
+      run: |
+        echo "PR VALUE IS: ${{ github.event.pull_request.number }}"
+        if [ -z "${{ github.event.pull_request.number }}" ]; then
+          # Not a PR; assume main branch (beta or release)
+          echo "ref type: ${{github.ref_type}}"
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            BUILD_LABEL=$(echo ${{ github.ref }} | rev | cut -d '_' -f1 | rev)
+          else
+            GIT_VER_REV=$(echo ${{ github.sha }} | cut -c1-7)
+            BUILD_LABEL=BETA-${GIT_VER_REV}
+          fi
+          UPLOAD_CHANNEL=BETA
+        else
+          # Otherwise, this is a PR
+          GIT_VER_REV=$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-7)
+          BUILD_LABEL=PR-${{ github.event.pull_request.number }}-${GIT_VER_REV}
+          UPLOAD_CHANNEL=ALPHA-${{ github.event.pull_request.number }}
+        fi
+        echo "build_label=$BUILD_LABEL" >> $GITHUB_OUTPUT
+        echo "upload_channel=$UPLOAD_CHANNEL" >> $GITHUB_OUTPUT
+        echo "BUILD_LABEL: $BUILD_LABEL"
+        echo "UPLOAD_CHANNEL: $UPLOAD_CHANNEL"
