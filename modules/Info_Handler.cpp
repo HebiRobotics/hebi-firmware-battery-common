@@ -52,10 +52,10 @@ void Info_Handler::initNodeID(){
     #endif
 }
 
-void Info_Handler::recvd_ctrl_read_info(protocol::ctrl_read_info_msg& msg) {
+void Info_Handler::recvd_ctrl_read_info(protocol::info_read_msg& msg) {
     if(msg.EID.node_id != node_id_) return;
 
-    if(msg.read_GUID()) can_.sendMessage(protocol::ctrl_guid_msg(node_id_, uid_48_));
+    if(msg.read_GUID()) can_.sendMessage(protocol::info_guid_msg(node_id_, uid_48_));
     if(msg.read_elec_type()){
         //Send string as a series of smaller messages
         size_t str_len = strlen(ELECTRICAL_TYPE);
@@ -103,16 +103,18 @@ void Info_Handler::recvd_ctrl_read_info(protocol::ctrl_read_info_msg& msg) {
                 elec_rev_handler_.string(), elec_rev_handler_.stringLength());
         }
     }
-    
+
     #ifdef _FIRMWARE_MODE_BOOTLOADER
-    if(msg.read_FW_mode()) can_.sendMessage(protocol::ctrl_fw_mode_msg(node_id_, protocol::ctrl_fw_mode_msg::FW_MODE_BOOT));
+    if(msg.read_FW_mode()) can_.sendMessage(protocol::info_fw_mode_msg(node_id_, protocol::info_fw_mode_msg::FW_MODE_BOOT));
     #else
-    if(msg.read_FW_mode()) can_.sendMessage(protocol::ctrl_fw_mode_msg(node_id_, protocol::ctrl_fw_mode_msg::FW_MODE_APP));
+    if(msg.read_FW_mode()) can_.sendMessage(protocol::info_fw_mode_msg(node_id_, protocol::info_fw_mode_msg::FW_MODE_APP));
     #endif
 }
 
 #ifdef _FIRMWARE_MODE_BOOTLOADER
-void Info_Handler::recvd_boot_set_serial_num(protocol::boot_set_serial_num_msg& msg) {
+void Info_Handler::recvd_serial_num(protocol::info_serial_num_msg& msg) {
+    //If we receive this message with our own node_id_, 
+    //treat it as a "set" operation
     if(msg.EID.node_id != node_id_) return;
 
     serial_number_handler_.handleMessage(msg);
@@ -122,7 +124,9 @@ void Info_Handler::recvd_boot_set_serial_num(protocol::boot_set_serial_num_msg& 
     }
 }
 
-void Info_Handler::recvd_boot_set_hw_type(protocol::boot_set_hw_type_msg& msg) {
+void Info_Handler::recvd_hw_type(protocol::info_hw_type_msg& msg) {
+    //If we receive this message with our own node_id_, 
+    //treat it as a "set" operation
     if(msg.EID.node_id != node_id_) return;
 
     hw_type_handler_.handleMessage(msg);
@@ -132,7 +136,9 @@ void Info_Handler::recvd_boot_set_hw_type(protocol::boot_set_hw_type_msg& msg) {
     }
 }
 
-void Info_Handler::recvd_boot_set_hw_rev(protocol::boot_set_hw_rev_msg& msg) {
+void Info_Handler::recvd_hw_rev(protocol::info_hw_rev_msg& msg) {
+    //If we receive this message with our own node_id_, 
+    //treat it as a "set" operation
     if(msg.EID.node_id != node_id_) return;
 
     hw_rev_handler_.handleMessage(msg);
@@ -142,7 +148,9 @@ void Info_Handler::recvd_boot_set_hw_rev(protocol::boot_set_hw_rev_msg& msg) {
     }
 }
 
-void Info_Handler::recvd_boot_set_elec_rev(protocol::boot_set_elec_rev_msg& msg) {
+void Info_Handler::recvd_elec_rev(protocol::info_elec_rev_msg& msg) {
+    //If we receive this message with our own node_id_, 
+    //treat it as a "set" operation
     if(msg.EID.node_id != node_id_) return;
 
     elec_rev_handler_.handleMessage(msg);
