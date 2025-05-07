@@ -24,10 +24,10 @@ protected:
     void recvd_ctrl_read_info(protocol::info_read_msg& msg) override;
 
     #ifdef _FIRMWARE_MODE_BOOTLOADER
-    void recvd_hw_type(info_hw_type_msg& msg) override;
-    void recvd_serial_num(info_serial_num_msg& msg) override;
-    void recvd_hw_rev(info_hw_rev_msg& msg) override;
-    void recvd_elec_rev(info_elec_rev_msg& msg) override;
+    void recvd_hw_type(protocol::info_hw_type_msg& msg) override;
+    void recvd_serial_num(protocol::info_serial_num_msg& msg) override;
+    void recvd_hw_rev(protocol::info_hw_rev_msg& msg) override;
+    void recvd_elec_rev(protocol::info_elec_rev_msg& msg) override;
     #endif
 
     bool node_id_valid_ {false};
