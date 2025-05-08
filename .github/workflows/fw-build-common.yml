@@ -1,0 +1,77 @@
+name: Firmware Build (common)
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+      # Empty for test builds where we do not want to upload;
+      # otherwise filename for uploaded build
+      filename:
+        required: true
+        type: string
+      build_label:
+        required: true
+        type: string
+      upload_scripts:
+        required: true
+        type: boolean
+
+jobs:
+  build_fw:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Install Arm GNU Toolchain (arm-none-eabi-gcc)
+      uses: carlosperate/arm-none-eabi-gcc-action@v1
+      with:
+        release: '13.2.Rel1'
+    - name: Build
+      run: |
+        # Prevent the "dubious ownership" error
+        git config --global --add safe.directory '*'
+
+        make clean
+
+        rm -rf output
+        mkdir output
+
+        make clean
+
+        echo Running: make BUILD_TYPE=RELEASE BUILD_LABEL=${{ inputs.build_label }} ${{ inputs.target }} -j
+        make BUILD_TYPE=RELEASE BUILD_LABEL=${{ inputs.build_label }} ${{ inputs.target }} -j
+        if [ $? -ne 0 ]; then
+          exit 1
+        fi
+        if [ "${{ inputs.filename }}" = "" ]; then
+          rm build/*.bin
+        else
+          mv build/*.bin output/${{ inputs.filename }}
+        fi
+      
+        make clean
+
+    - name: Upload build as artifact
+      if: inputs.filename != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.filename }}
+        path: output/${{ inputs.filename }}
+
+    - name: Firmware uploader scripts
+      if: inputs.upload_scripts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'upload_scripts'
+        path: scripts
+
+    - name: Firmware uploader scripts (common)
+      if: inputs.upload_scripts
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'common_upload_scripts'
+        path: common/scripts
