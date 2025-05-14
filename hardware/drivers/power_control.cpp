@@ -50,6 +50,8 @@ void Power_Control::clearStandby(){
 void Power_Control::enterStop2(){
 
     stopDrivers();
+    //TODO: Fix low power mode..
+    msi_reset();
 
     PWR->PUCRA |= (PWR_PUCRA_PA10 | PWR_PUCRA_PA15); //Pullup on CAN control pins
     PWR->PDCRH |= (PWR_PDCRH_PH3);
@@ -72,7 +74,8 @@ void Power_Control::enterStop2(){
 
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk; //Clear SLEEPDEEP
     PWR->CR3 &= ~(PWR_CR3_APC); //Disable pullups
-
+    
+    stm32_clock_init();
     startDrivers(); 
 }
 
