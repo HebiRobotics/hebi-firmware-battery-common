@@ -1,6 +1,9 @@
 # hebi-firmware-battery-common
 This repo contains common driver files for HEBI Robotics' open-source Wattman BIB.
 
+## Getting Started
+This firmware was designed with VSCode, WSL, and the ARM GNU Toolchain. The Toolchain Setup Guide can be found [here](toolchain/toolchain.md).
+
 ## Project Background
 The goal of this project is to develop an open-source smart battery solution for robotics applications. 
 
@@ -34,7 +37,7 @@ The Wattman battery pack has been powering HEBI's internal development since 202
 - Robust hot swapping support
 - Smart fault detection and recovery
 
-## Associated Repos
+## More Info
 - [ECAD Files](https://github.com/HebiRobotics/hebi-electrical-public/tree/main/PCBA-2121-01%20Battery%20Cap%20Power%20Controller)
 - [CAN Protocol](https://github.com/HebiRobotics/hebi-firmware-battery-protocol)
 - [Application Source](https://github.com/HebiRobotics/hebi-firmware-battery)
