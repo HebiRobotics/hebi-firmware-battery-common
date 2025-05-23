@@ -59,8 +59,19 @@ void Power_Control::enterStop2(){
     SYSCFG->EXTICR[0] &= ~SYSCFG_EXTICR1_EXTI2_Msk;
     extiEnableLine(2, EXTI_MODE_RISING_EDGE | EXTI_MODE_ACTION_EVENT); //Enable EXTI for PA2
 
+    //Setup for stop 2 mode
     PWR->CR1 |= PWR_CR1_LPMS_STOP2;
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+
+    //Switch back to MSI if MSI is not the selected clock source
+    #if (STM32_SW != STM32_SW_MSI)
+    RCC->CFGR = (RCC->CFGR & ~STM32_SW_MASK) | STM32_SW_MSI; //Switch to MSI
+    /* Wait until SYSCLK is stable.*/
+    while ((RCC->CFGR & RCC_CFGR_SWS) != (STM32_SW_MSI << 2))
+        ;
+    #endif
+
+    chSysDisable();
     
     //----- Wait for Wakeup! -----
 
@@ -72,7 +83,22 @@ void Power_Control::enterStop2(){
 
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk; //Clear SLEEPDEEP
     PWR->CR3 &= ~(PWR_CR3_APC); //Disable pullups
+    
+    // stm32_clock_init();
+    msi_reset();
+    msi_init();
+    pll_init();
 
+    /* Switching to the configured SYSCLK source if it is different from MSI.*/
+    #if (STM32_SW != STM32_SW_MSI)
+        RCC->CFGR |= STM32_SW;        /* Switches on the selected clock source.   */
+        /* Wait until SYSCLK is stable.*/
+        while ((RCC->CFGR & RCC_CFGR_SWS) != (STM32_SW << 2))
+        ;
+    #endif
+
+    chSysEnable();
+    
     startDrivers(); 
 }
 
